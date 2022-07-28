@@ -29,7 +29,7 @@ n = 20
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# MATH
+# MATH + GEOMETRY WITH GeometryBasics
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 θ = [0;(0.5:n-0.5)/n;1]
@@ -38,6 +38,7 @@ x = [cospi(φ)*sinpi(θ) for θ in θ, φ in φ]
 y = [sinpi(φ)*sinpi(θ) for θ in θ, φ in φ]
 z = [cospi(θ) for θ in θ, φ in φ]
 
+# ! generate directly using GeometryBasics API
 f(x,y,z) = x*exp(cos(y)*z)
 ∇f(x,y,z) = Point3f0(exp(cos(y)*z), -sin(y)*z*x*exp(cos(y)*z), x*cos(y)*exp(cos(y)*z))  # 'Point3f0' from GeometryBasics
 ∇ˢf(x,y,z) = ∇f(x,y,z) - Point3f0(x,y,z)*dot(Point3f0(x,y,z), ∇f(x,y,z))

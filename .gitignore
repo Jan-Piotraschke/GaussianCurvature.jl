@@ -19,6 +19,9 @@
 *.o
 *.o.tmp
 *.obj
+*.off
+*.ply
+*.stl
 *.so
 *.dylib
 *.dSYM

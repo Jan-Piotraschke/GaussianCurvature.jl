@@ -26,7 +26,7 @@ gyroid_shell(v) = max(gyroid(v)-0.4,-gyroid(v)-0.4)
 gy_mesh = GeometryBasics.Mesh(gyroid_shell, Rect(Vec(0,0,0),Vec(pi*4,pi*4,pi*4)), Meshing.MarchingCubes(), samples=(50,50,50))
 
 # change extension to save as STL, PLY, OBJ, OFF
-save("gyroid.stl", gy_mesh)
+FileIO.save("gyroid.stl", gy_mesh)
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -34,3 +34,10 @@ save("gyroid.stl", gy_mesh)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 Makie.mesh(gy_mesh, color=[norm(v) for v in coordinates(gy_mesh)])
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# LOAD FILE
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+mesh_loaded = load("gyroid_changed.stl")
+Makie.mesh(mesh_loaded, color=[norm(v) for v in coordinates(mesh_loaded)])
