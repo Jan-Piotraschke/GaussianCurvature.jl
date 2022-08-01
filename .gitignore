@@ -21,7 +21,7 @@
 *.obj
 *.off
 *.ply
-*.stl
+# *.stl
 *.so
 *.dylib
 *.dSYM
