@@ -7,6 +7,22 @@ Workflow for ...
 2. deform the 3D model slightliy in [Blender](https://www.blender.org)
 3. fit the PDEs onto the changed 3D model with Hidden Physics Models
 
+
+## PINNs as a candidate for a FaustAI (_currently in review; maybe UDEs are better, or the SINDy approach_)
+
+[PINNs](https://maziarraissi.github.io/PINNs/) can be designed to solve two classes of problems:
+- data-driven solution
+- data-driven discovery  
+
+of partial differential equations.  
+
+Here we implemented the data-driven discovery given noisy and incomplete measurements.  
+It is important to understand that the PDEs (that govern a given data-set) get embeded into the learning process of the NN.  
+Explicitly speaking, the **PDEs get embeded into the cost function** of the NN.  
+With that, the embeded PDEs act as a regularization agent that limits the space of admissible solutions of the NN training.  
+The PINN alone does not find any unknown/missing terms of the PDE problem.  
+**It only adjusts the unknown PDE parameters** as part of its cost function.
+
 ## Package management
 
 The `Project.toml` and `Manifest.toml` contain the package definitions for Julia.  
