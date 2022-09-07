@@ -69,11 +69,45 @@ Makie.lines(x, y, color = :blue)
 
 using NeuralPDE, Lux, Optimization, OptimizationOptimJL
 import ModelingToolkit: Interval
+using ModelingToolkit
 using IntervalSets
 using Makie
 using GLMakie
 
 GLMakie.activate!()
+
+
+"""
+    construct_NN()
+
+Construct the NN
+"""
+function construct_NN()
+      dim = 2  # number of dimensions
+      chain = Lux.Chain(Dense(dim,16,Lux.σ),Dense(16,16,Lux.σ),Dense(16,1))
+
+      return chain
+end
+
+
+"""
+    solve_pde_using_pinn(_prob)
+
+Solve the PDE system using a designed PINN
+"""
+function solve_pde_using_pinn(_prob)
+      # Optimizer
+      opt = OptimizationOptimJL.BFGS()
+
+      # Callback function
+      callback = function (p,l)
+      println("Current loss is: $l")
+      return false
+      end
+
+      return Optimization.solve(_prob, opt, callback = callback, maxiters=1000)
+end
+
 
 
 # '@' indicates that creation of a 'macro'
@@ -96,11 +130,10 @@ domains = [x ∈ Interval(0.0,1.0),
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# define the NN
+# construct the NN
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-dim = 2 # number of dimensions
-chain = Lux.Chain(Dense(dim,16,Lux.σ),Dense(16,16,Lux.σ),Dense(16,1))
+chain = construct_NN()
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -108,14 +141,16 @@ chain = Lux.Chain(Dense(dim,16,Lux.σ),Dense(16,16,Lux.σ),Dense(16,1))
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 dx = 0.05
-discretization = PhysicsInformedNN(chain, GridTraining(dx))
+# transforms a PDESystem into an OptimizationProblem using the Physics-Informed Neural Networks (PINN) methodology
+# !param_estim: whether the parameters of the PDE should be included in the values sent to the additional_loss function.
+discretization = NeuralPDE.PhysicsInformedNN(chain, GridTraining(dx), param_estim = false)
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # define the PDESystem and create PINNs problem using the discretize method
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-@named pde_system = PDESystem(eq,bcs,domains,[x,y],[u(x, y)])
+@named pde_system =  ModelingToolkit.PDESystem(eq,bcs,domains,[x,y],[u(x, y)])
 prob = SciMLBase.discretize(pde_system, discretization)
 
 
@@ -123,21 +158,11 @@ prob = SciMLBase.discretize(pde_system, discretization)
 # SOLVE THE PDE USING PINNs
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-# Optimizer
-opt = OptimizationOptimJL.BFGS()
-
-# Callback function
-callback = function (p,l)
-    println("Current loss is: $l")
-    return false
-end
-
-res = Optimization.solve(prob, opt, callback = callback, maxiters=1000)
+res = solve_pde_using_pinn(prob)
 phi = discretization.phi
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# PLOTTING
 # We can plot the predicted solution of the PDE and compare it with the analytical solution in order to 
 # plot the relative error.
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
