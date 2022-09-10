@@ -2,7 +2,7 @@
 
 julia_version = "1.8.0"
 manifest_format = "2.0"
-project_hash = "2b6eccc695fdb6bc4de097efbecef42b7daf9eb6"
+project_hash = "52c1c0582511d35e5736a6ab09a97eb80ae8875f"
 
 [[deps.AbstractAlgebra]]
 deps = ["GroupsCore", "InteractiveUtils", "LinearAlgebra", "MacroTools", "Markdown", "Random", "RandomExtensions", "SparseArrays", "Test"]
@@ -199,6 +199,12 @@ deps = ["ChainRulesCore", "LinearAlgebra", "Test"]
 git-tree-sha1 = "38f7a08f19d8810338d4f5085211c7dfa5d5bdd8"
 uuid = "9e997f8a-9a97-42d5-a9f1-ce6bfc15e2c0"
 version = "0.1.4"
+
+[[deps.CircularArrays]]
+deps = ["OffsetArrays"]
+git-tree-sha1 = "3587fdbecba8c44f7e7285a1957182711b95f580"
+uuid = "7a955b69-7140-5f4e-a0ed-f168c5e2e749"
+version = "1.3.1"
 
 [[deps.CloseOpenIntervals]]
 deps = ["ArrayInterface", "Static"]
@@ -1206,6 +1212,12 @@ git-tree-sha1 = "8be09d84a2d597c7c0c34d7d604c039c9763e48c"
 uuid = "7269a6da-0436-5bbc-96c2-40638cbb6118"
 version = "0.4.10"
 
+[[deps.Meshes]]
+deps = ["CircularArrays", "Distances", "IterTools", "IteratorInterfaceExtensions", "LinearAlgebra", "NearestNeighbors", "Random", "ReferenceFrameRotations", "SparseArrays", "SpecialFunctions", "StaticArrays", "StatsBase", "TableTraits", "Tables"]
+git-tree-sha1 = "1315179187befa1f8c6cc50add5d710570de8bf2"
+uuid = "eacbb407-ea5a-433e-ab97-5258b1ca43fa"
+version = "0.24.1"
+
 [[deps.Meshing]]
 deps = ["GeometryBasics", "GeometryTypes", "StaticArrays"]
 git-tree-sha1 = "b32d34f3e3ca44391ca7261ca4eb96af71e022b9"
@@ -1313,6 +1325,12 @@ deps = ["PrettyPrint"]
 git-tree-sha1 = "1a0fa0e9613f46c9b8c11eee38ebb4f590013c5e"
 uuid = "71a1bf82-56d0-4bbc-8a3c-48b961074391"
 version = "0.1.5"
+
+[[deps.NearestNeighbors]]
+deps = ["Distances", "StaticArrays"]
+git-tree-sha1 = "0e353ed734b1747fc20cd4cba0edd9ac027eff6a"
+uuid = "b8a86587-4115-5ab1-83bc-aa920d37bbce"
+version = "0.4.11"
 
 [[deps.Netpbm]]
 deps = ["FileIO", "ImageCore"]
@@ -1650,6 +1668,12 @@ version = "0.2.11"
 git-tree-sha1 = "45e428421666073eab6f2da5c9d310d99bb12f9b"
 uuid = "189a3867-3050-52da-a836-e630ba90ab69"
 version = "1.2.2"
+
+[[deps.ReferenceFrameRotations]]
+deps = ["Crayons", "LinearAlgebra", "Printf", "Random", "StaticArrays"]
+git-tree-sha1 = "ec9bde2e30bc221e05e20fcec9a36a9c315e04a6"
+uuid = "74f56ac7-18b3-5285-802d-d4bd4f104033"
+version = "3.0.0"
 
 [[deps.Referenceables]]
 deps = ["Adapt"]

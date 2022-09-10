@@ -31,7 +31,6 @@ x = [cospi(φ)*sinpi(θ) for θ in θ, φ in φ]
 y = [sinpi(φ)*sinpi(θ) for θ in θ, φ in φ]
 z = [cospi(θ) for θ in θ, φ in φ]
 
-# ! generate directly using GeometryBasics API
 f(x,y,z) = x*exp(cos(y)*z)
 ∇f(x,y,z) = Point3f0(exp(cos(y)*z), -sin(y)*z*x*exp(cos(y)*z), x*cos(y)*exp(cos(y)*z))  # 'Point3f0' from GeometryBasics
 ∇ˢf(x,y,z) = ∇f(x,y,z) - Point3f0(x,y,z)*dot(Point3f0(x,y,z), ∇f(x,y,z))
@@ -39,17 +38,15 @@ f(x,y,z) = x*exp(cos(y)*z)
 # calculate the properties of all the arrows:
 arrow_startpoints = vec(Point3f0.(x, y, z))
 arrow_directions = vec(∇ˢf.(x, y, z)) .* 0.1f0
-# println(typeof(arrow_directions))
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PLOTTING DONE BY MAKIE.jl
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# TODO: pass Mesh data to the Scene
+
 scene = Makie.Scene(resolution = (400,400));
 
 Makie.surface(x, y, z)   # fig, ax, pltobj = surface(x, y, z)
-# GeometryBasics.mesh(Makie.surface(x, y, z) )  # Only a idea 
 arr = Makie.arrows!(
     arrow_startpoints, arrow_directions,
     arrowsize = 0.05, linecolor = (:white, 0.7), linewidth = 0.02, lengthscale = 0.1
