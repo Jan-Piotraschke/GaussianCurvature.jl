@@ -12,11 +12,18 @@ using GeometryBasics  # great package
 GLMakie.activate!()
 
 
+# TODO: maybe implement 'dropout' logic into the NN which avoids overfitting by randomly turning off some neurons
 """
     construct_NN()
 
-Construct the NN
-number of dimensions = length of the domains
+Aufgabe: wir möchten stetige Werte vorhersagen -> Regressionsproblem
+
+Construct the NN layers Regression möchten wir stetige Werte vorhersagen
+NN consists out of 3 dense layers: every neuron in the layer n is connected to all the neurons in the n-1 layer
+activation function of the neurons in the i th layer: sigmoid (=σ) activation function
+
+input of the first layer: number of dimensions = length of the domains
+output of the last layer: 1 -> neccessary for regression ML
 """
 function construct_NN(dim)
     chain = Lux.Chain(Dense(dim,16,Lux.σ),Dense(16,16,Lux.σ),Dense(16,1))
@@ -29,6 +36,7 @@ end
     solve_pde_using_pinn(_prob)
 
 Solve the PDE system using a designed PINN
+Network learning is simply minimizing a cost function (e.g. with gradient descent methode)!
 """
 function solve_pde_using_pinn(_prob)
     # Optimizer
@@ -70,12 +78,12 @@ end
 
 # '@' indicates that creation of a 'macro'
 # macros are part of metaprogramming
-@parameters x y  # unsere Variablen, die die Ableitung formen
-@variables u(..)
+@parameters x y  # Independent variables: unsere Variablen, die die Ableitung formen
+@variables u(..)  # Dependent variables
 Dxx = Symbolics.Differential(x)^2
 Dyy = Symbolics.Differential(y)^2
 
-# 2D PDE: Poisson equation
+# 2D PDE: Poisson equation -sin(πx)sin(πy)
 # ! '~' indicates that it is an equation
 eqs = [Dxx(u(x,y)) + Dyy(u(x,y)) ~ -sin(pi*x)*sin(pi*y)]  # TODO: pass this eq to LaTeX and print it next to the plot
 
@@ -85,7 +93,7 @@ bcs = [u(0,y) ~ 0.0,
        u(x,0) ~ 0.0,
        u(x,1) ~ 0.0]
 
-# Space and time domains
+# Space and time domains for the Independent variables
 domains = [x ∈ Interval(0.0,1.0),
            y ∈ Interval(0.0,1.0)]
 
