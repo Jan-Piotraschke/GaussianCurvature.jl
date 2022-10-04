@@ -59,10 +59,7 @@ This is a "Face-Vertex Mesh" -> the most widely used mesh representation
 'Face': usually consists of triangles
 """
 function combine_diffeq_sols_into_mesh(xs, ys, diffeq_sol)
-    # Note: I'm still experimenting, which faces logic fits the most
-    faces = decompose(QuadFace{GLIndex}, Tesselation(Rect(0, 0, 1, 1), size(diffeq_sol)))   # shape of a Quadrat
-    # faces = decompose(UV(GeometryBasics.Vec3f), Tesselation(Rect(0, 0, 1, 1), size(u_predict)))
-    # faces = decompose(GLTriangleFace, Tesselation(Rect(0, 0, 1, 1), size(u_predict)))
+    faces = decompose(GLTriangleFace, Tesselation(Rect(0, 0, 1, 1), size(u_predict)))
 
     xs_vec = xs' .* ones(length(xs)) |> vec  # create meshgrid
     ys_vec = ones(length(ys))' .* ys |> vec  # create meshgrid
@@ -83,6 +80,7 @@ end
 Dxx = Symbolics.Differential(x)^2
 Dyy = Symbolics.Differential(y)^2
 
+# ! TODO: we need 'closed' (3D) surfaces for the analysis of collective motion patterns
 # 2D PDE: Poisson equation -sin(πx)sin(πy)
 # ! '~' indicates that it is an equation
 eqs = [Dxx(u(x,y)) + Dyy(u(x,y)) ~ -sin(pi*x)*sin(pi*y)]  # TODO: pass this eq to LaTeX and print it next to the plot
