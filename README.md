@@ -34,6 +34,7 @@ This is how you manage packages with it:
 - Run `julia`
 - type `]` (closing square bracket)
 - run `activate .`
+- use `instantiate` to install all packages
 - use `add <PackageName>` to add a new package
 - use `rm <PackageName>` to remove a package
 - use `up <PackageName>` to update a package to a newer version
