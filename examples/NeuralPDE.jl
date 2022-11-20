@@ -153,6 +153,13 @@ FileIO.save("assets/poisson.stl", gb_mesh)
 
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# OPTIONAL: LOAD FILE -> if you already have run this script one time
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+mesh_loaded = load("assets/poisson.stl")
+
+
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # PLOTTING DONE BY MAKIE.jl
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -166,10 +173,3 @@ FileIO.save("assets/poisson.stl", gb_mesh)
 scene = Makie.Scene(resolution = (400,400));
 f, ax, pl = Makie.mesh(gb_mesh, axis=(type=Axis3,))  # plot the mesh
 wireframe!(ax, gb_mesh, color=(:black, 0.2), linewidth=2, transparency=true)  # only for the asthetic
-
-
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# OPTIONAL: LOAD FILE -> if you already have run this script one time
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-
-mesh_loaded = load("assets/poisson.stl")

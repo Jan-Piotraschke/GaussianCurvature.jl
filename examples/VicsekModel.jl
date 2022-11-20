@@ -5,11 +5,15 @@ using FileIO  # good package
 using Meshes
 using GeometryBasics  # great package
 using Random
+using StaticArrays
 
-# GLMakie.activate!()
+GLMakie.activate!()
+GLMakie.set_window_config!(
+    framerate = 10,
+    title = "Arrows on a surface"
+)
 
-
-# mesh_loaded = load("assets/sphere.stl")
+mesh_loaded = load("assets/sphere.stl")
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # PLOTTING DONE BY MAKIE.jl
@@ -40,6 +44,43 @@ function calculate_order_parameter(v_order, tt, v_tp)
 end
 
 
+"""
+    plot_surface(n, ss, rho)
+
+"""
+function plot_surface(n, ss, rho)
+
+    # sphere geometry
+    # sphere = Meshes.Sphere((0.,0.,0.), 1.)
+
+    θ = [0;(0.5:n-0.5)/n;1]
+    φ = [(0:2n-2)*2/(2n-1);2]
+    x = [cospi(φ)*sinpi(θ) for θ in θ, φ in φ]
+    y = [sinpi(φ)*sinpi(θ) for θ in θ, φ in φ]
+    z = [cospi(θ) for θ in θ, φ in φ]
+
+    # discretize the sphere into a mesh object
+    # sphere_mesh = Meshes.discretize(sphere, Meshes.RegularDiscretization(30, 30))
+    # vertices = sphere_mesh.points
+
+    # # reshape the vector, which consists out of vectors, into an array
+    # coordinates = reshape(reinterpret(Float64, vertices), (3, :))'
+
+    # # unpack the coordinates
+    # xs = coordinates[:,1]
+    # ys = coordinates[:,2]
+    # zs = coordinates[:,3]
+
+    # calculate the properties of the sphere surface
+    # h1 = Makie.surface(ss*rho*xs, ss*rho*ys, ss*rho*zs)
+    h1 = Makie.surface(ss*rho*x, ss*rho*y, ss*rho*z)
+
+    # Makie.mesh(sphere_mesh, axis=(type=Axis3,))
+
+    return h1
+end
+
+
 # particle motion on a sphere
 n=60  # Number of particles
 noise=0.6  # value of the noise
@@ -64,7 +105,8 @@ R_o=1;      #        %distance for maximum attractive force betwen particles
 F_adh=0;     #    %maximum attractive force betwen particles
 mu=1;       #        % mobility of the particle
 
-rho=sqrt(n*((R_eq/2)^2)/4); #%radius of sphere acording to "active swarms on a sphere"
+rho=sqrt(n*((R_eq/2)^2)/4)  # radius of sphere acording to "active swarms on a sphere"
+ss=1
 
 Rc=2.4*R_eq/2;            #       %cutoff radius for the calculation of the distance matrix
 
@@ -212,50 +254,65 @@ for tt=2:timesteps #   %number of time steps
 
     if rem(t,plotstep)==0
         
-        hFig = figure(1);
+        # hFig = figure(1)
 
+        fig = Figure()                       # create figure pane
+        ax1 = Axis(f[1, 1])                  # create axis at position [1,1] 
+        # p = []                             # if you want to index plots or axes, start empty
+        # push!(p, lines!(a, 0:0.1:10, sin)) # plot lines figure in current axis, mind the !
+        # push!(p, lines!(a, 0:0.1:10, cos)) # add another plot
+        # p[2][:color] = :red                # change the color property of second plot
+        # p[2].color = :red 
         # # resize the image window
         # set(hFig, 'Position', [200 100 1000 800])
-        
-        
-        subplot(2,2,1) . #  %plot the sphere and particles in 3D
 
-        [xs,ys,zs]=sphere(100);
-        ss=1;
 
-        h1=surf(ss*rho*xs,ss*rho*ys,ss*rho*zs);
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # Calculate the surface
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-        set (h1,'EdgeColor',[0.75,0.75,0.75],'FaceColor',[0.95,0.95,0.75],'MeshStyle','row');
+        h1 = plot_surface(20, ss, rho)
+        # set (h1,'EdgeColor',[0.75,0.75,0.75],'FaceColor',[0.95,0.95,0.75],'MeshStyle','row');
 
-        alpha(0.5);
 
-        
-        # %particle position:
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # Calculate the SPHERE particle positions
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
         plot3(r(:,1),r(:,2),r(:,3),'o','MarkerSize', 8,'MarkerEdgeColor','k','MarkerFaceColor','g');
-        plot3(r(1,1),r(1,2),r(1,3),'o','MarkerSize', 8,'MarkerEdgeColor','k','MarkerFaceColor','r');
+        plot3(r(1,1),r(1,2),r(1,3),'o','MarkerSize', 8,'MarkerEdgeColor','k','MarkerFaceColor','r');  # TODO: NOTE: this is the one red cell
         [xs2,ys2,zs2]=sphere(20);
-        h2=surf(ss*R_eq/2*xs2+r(1,1),ss*R_eq/2*ys2+r(1,2),ss*R_eq/2*zs2+r(1,3));
-        set (h2,'EdgeColor',[1,0,0],'FaceColor',[1,0,0],'MeshStyle','row');
-        alpha(0.2);
-        
-        
-        axis([-rho  rho  -rho  rho  -rho  rho]);
-        title(['tt:' num2str(tt,'%.3e'),' of ' num2str(timesteps,'%.e'), '; dt:' num2str(dt,'%.e'),'; F_{rep}:' num2str(F_rep),'; F_{adh}:' num2str(F_adh),'; Rho:' num2str(rho),'; s:' num2str(s)]);
-        
-        # %tangent vector (T); red:
-        quiver3(r(:,1),r(:,2),r(:,3),scale*a_paper(:,1),scale*a_paper(:,2),scale*a_paper(:,3),0,'MaxHeadSize', .8,'color','r');
-        
-        # %vector perpendicular to tangent and normal vector (TxN); black:
-        quiver3(r(:,1),r(:,2),r(:,3),v_norm(:,1),v_norm(:,2),v_norm(:,3),0,'MaxHeadSize', .8,'color','m');
-        
-        # %orientation of the particle (O); black:
-        quiver3(r(:,1),r(:,2),r(:,3),x(:,1),x(:,2),x(:,3),0,'MaxHeadSize', .8,'color','k');
+        h2=Makie.surface(ss*R_eq/2*xs2+r(1,1),ss*R_eq/2*ys2+r(1,2),ss*R_eq/2*zs2+r(1,3))
+        # set (h2,'EdgeColor',[1,0,0],'FaceColor',[1,0,0],'MeshStyle','row');
 
-        # %normal vector (N); blue:
-        quiver3(r(:,1),r(:,2),r(:,3),scale*r_norm_ini(:,1),scale*r_norm_ini(:,2),scale*r_norm_ini(:,3),0,'MaxHeadSize', .8,'color','b');
+        axis([-rho  rho  -rho  rho  -rho  rho]);
+        # title(['tt:' num2str(tt,'%.3e'),' of ' num2str(timesteps,'%.e'), '; dt:' num2str(dt,'%.e'),'; F_{rep}:' num2str(F_rep),'; F_{adh}:' num2str(F_adh),'; Rho:' num2str(rho),'; s:' num2str(s)]);
         
         
-        subplot(2,2,[3 4]); # %EQUIRECTANGULAR PROJECTION
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # Plots arrows with directional components
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        
+        # tangent vector (T); red:
+        Makie.arrows!(r[:,1],r[:,2],r[:,3], scale*a_paper[:,1],scale*a_paper[:,2],scale*a_paper[:,3], arrowsize = 0.05, linecolor = (:red, 0.7), linewidth = 0.02, lengthscale = 0.1)
+
+        # vector perpendicular to tangent and normal vector (TxN); yellow:
+        Makie.arrows!(r[:,1],r[:,2],r[:,3], v_norm[:,1],v_norm[:,2],v_norm[:,3], arrowsize = 0.05, linecolor = (:yellow, 0.7), linewidth = 0.02, lengthscale = 0.1)
+
+        # orientation of the particle (O); black:
+        Makie.arrows!(r[:,1],r[:,2],r[:,3], x[:,1],x[:,2],x[:,3], arrowsize = 0.05, linecolor = (:black, 0.7), linewidth = 0.02, lengthscale = 0.1)
+
+        # normal vector (N); blue:
+        Makie.arrows!(r[:,1],r[:,2],r[:,3], scale*r_norm_ini[:,1],scale*r_norm_ini[:,2],scale*r_norm_ini[:,3], arrowsize = 0.05, linecolor = (:blue, 0.7), linewidth = 0.02, lengthscale = 0.1)
+
+
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # 2D EQUIRECTANGULAR PROJECTION of the 3D surface
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+        ax1 = Axis(f[2, 1])                  # create axis at position [2,1] 
+
+        subplot(2,2,[3 4])
 
         plot(thet1(1,:),phi1(1,:),'o','MarkerSize', 8,'MarkerEdgeColor','k','MarkerFaceColor','g');
         
@@ -263,23 +320,32 @@ for tt=2:timesteps #   %number of time steps
         
         axis([-pi  pi  -pi/2  pi/2]);
         
-        title(['N:' num2str(n), '  Theta:' num2str(thet1(1,1),'%.2f'), '  Phi:' num2str(phi1(1,1),'%.2f'), ' |R|:' num2str(norm(r(1,:))),'  x:' num2str(r(1,1),'%.1f'),'  y:'  num2str(r(1,2),'%.1f'),'  z:' num2str(r(1,3),'%.1f')]);
-        xlabel('Theta (azimuth) -pi < x < pi')  # % x-axis label
-        ylabel('Phi (altitude) -pi/2 < y < pi/2') # % y-axis label
+        # title(['N:' num2str(n), '  Theta:' num2str(thet1(1,1),'%.2f'), '  Phi:' num2str(phi1(1,1),'%.2f'), ' |R|:' num2str(norm(r(1,:))),'  x:' num2str(r(1,1),'%.1f'),'  y:'  num2str(r(1,2),'%.1f'),'  z:' num2str(r(1,3),'%.1f')]);
+        # xlabel('Theta (azimuth) -pi < x < pi')  # % x-axis label
+        # ylabel('Phi (altitude) -pi/2 < y < pi/2') # % y-axis label
 
-        subplot(2,2,2)  # %ORDER PARAMETER
+
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # plot the ORDER PARAMETER
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
+        subplot(2,2,2)
 
         plot(v_order)
-        title(['mean order parameter:', num2str(mean(v_order),'%.3f')]);
-        xlabel('timestep')
-        ylabel('order parameter')
+        # title(['mean order parameter:', num2str(mean(v_order),'%.3f')]);
+        # xlabel('timestep')
+        # ylabel('order parameter')
+
+
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+        # record the video
+        # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
         frame = getframe(hFig);
         writeVideo(writerObj,frame);
         
-        %     end
     end
-    
+
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -329,28 +395,28 @@ for tt=2:timesteps #   %number of time steps
                 Distmat2(i_i,a)
                 figure(200)
                 plot3(r(a(:),1),r(a(:),2),r(a(:),3),'b*')
-                ss=1;
+
                 [xs,ys,zs]=sphere(100);
                 h2=surf(ss*rho*xs,ss*rho*ys,ss*rho*zs);
 
-                set (h2,'EdgeColor',[0.75,0.75,0.75],'FaceColor',[0.95,0.95,0.75],'MeshStyle','row');
-                alpha(0.5);
+                # set (h2,'EdgeColor',[0.75,0.75,0.75],'FaceColor',[0.95,0.95,0.75],'MeshStyle','row');
+
                 
                 plot3(r(i_i,1),r(i_i,2),r(i_i,3),'r*')
                 [xs2,ys2,zs2]=sphere(100);
                 h2=surf(ss*Rc*xs2+r(i_i,1),ss*Rc*ys2+r(i_i,2),ss*Rc*zs2+r(i_i,3));
 
-                set (h2,'EdgeColor',[0.75,0.75,0.75],'FaceColor',[0.95,0.95,0.75],'MeshStyle','row');
+                # set (h2,'EdgeColor',[0.75,0.75,0.75],'FaceColor',[0.95,0.95,0.75],'MeshStyle','row');
 
-                alpha(0.5);
 
+                
                 [xs2,ys2,zs2]=sphere(100);
                 h2=surf(ss*R_eq/2*xs2+r(i_i,1),ss*R_eq/2*ys2+r(i_i,2),ss*R_eq/2*zs2+r(i_i,3));
 
-                set (h2,'EdgeColor',[1,0,0],'FaceColor',[1,0,0],'MeshStyle','row');
+                # set (h2,'EdgeColor',[1,0,0],'FaceColor',[1,0,0],'MeshStyle','row');
 
-                alpha(0.5);
 
+                
             end
             for k=1:numnearestneighbs
                 p_dist=r(a(k),:)-r(i_i,:); # % vector between particle pairs
