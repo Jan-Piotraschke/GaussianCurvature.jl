@@ -13,7 +13,6 @@ GLMakie.set_window_config!(
     title = "Arrows on a surface"
 )
 
-mesh_loaded = load("assets/sphere.stl")
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # # PLOTTING DONE BY MAKIE.jl
@@ -45,40 +44,78 @@ end
 
 
 """
-    plot_surface(n, ss, rho)
+    create_heatmap_mesh_from_diffeq_sols(xs, ys, diffeq_sol)
+
+This is a "Face-Vertex Mesh" -> the most widely used mesh representation
+'Face': usually consists of triangles
+"""
+function create_heatmap_mesh_from_diffeq_sols(xs, ys, diffeq_sol::Array)
+    faces = decompose(GLTriangleFace, Tesselation(Rect(0, 0, 1, 1), size(u_predict)))
+
+    xs_vec = xs' .* ones(length(xs)) |> vec  # create meshgrid
+    ys_vec = ones(length(ys))' .* ys |> vec  # create meshgrid
+    diffeq_sol_vec = diffeq_sol |> vec
+
+    gl_points = GLMakie.Point.(xs_vec,ys_vec,diffeq_sol_vec) |> vec
+
+    gb_mesh = GeometryBasics.Mesh(gl_points, faces)  # create the mesh
+
+    return gb_mesh
+end
+
+
+function create_mesh_from_coordinates()
+    
+end
+
+
+function create_coordinates_from_mesh()
+    
+end
+
 
 """
-function plot_surface(n, ss, rho)
+    get_sphere_coordinates(n)
 
-    # sphere geometry
-    # sphere = Meshes.Sphere((0.,0.,0.), 1.)
-
+"""
+function get_sphere_coordinates(n)
     θ = [0;(0.5:n-0.5)/n;1]
     φ = [(0:2n-2)*2/(2n-1);2]
     x = [cospi(φ)*sinpi(θ) for θ in θ, φ in φ]
     y = [sinpi(φ)*sinpi(θ) for θ in θ, φ in φ]
     z = [cospi(θ) for θ in θ, φ in φ]
 
-    # discretize the sphere into a mesh object
-    # sphere_mesh = Meshes.discretize(sphere, Meshes.RegularDiscretization(30, 30))
-    # vertices = sphere_mesh.points
-
-    # # reshape the vector, which consists out of vectors, into an array
-    # coordinates = reshape(reinterpret(Float64, vertices), (3, :))'
-
-    # # unpack the coordinates
-    # xs = coordinates[:,1]
-    # ys = coordinates[:,2]
-    # zs = coordinates[:,3]
-
-    # calculate the properties of the sphere surface
-    # h1 = Makie.surface(ss*rho*xs, ss*rho*ys, ss*rho*zs)
-    h1 = Makie.surface(ss*rho*x, ss*rho*y, ss*rho*z)
-
-    # Makie.mesh(sphere_mesh, axis=(type=Axis3,))
-
-    return h1
+    return x,y,z
 end
+
+
+# """
+#     plot_mesh_surface(n, ss, rho)
+
+# """
+# function plot_mesh_surface(n, ss, rho)
+
+#     # sphere geometry
+#     sphere = Meshes.Sphere((0.,0.,0.), 1.)
+
+#     # discretize the sphere into a mesh object
+#     sphere_mesh = Meshes.discretize(sphere, Meshes.RegularDiscretization(30, 30))
+#     vertices = sphere_mesh.points
+
+#     # reshape the vector, which consists out of vectors, into an array
+#     coordinates = reshape(reinterpret(Float64, vertices), (3, :))'
+
+#     # unpack the coordinates
+#     xs = coordinates[:,1]
+#     ys = coordinates[:,2]
+#     zs = coordinates[:,3]
+
+#     # calculate the properties of the sphere surface
+#     h1 = Makie.surface(ss*rho*xs, ss*rho*ys, ss*rho*zs)
+
+#     return Makie.mesh(sphere_mesh, axis=(type=Axis3,))
+
+# end
 
 
 # particle motion on a sphere
@@ -262,7 +299,7 @@ for tt=2:timesteps #   %number of time steps
         # push!(p, lines!(a, 0:0.1:10, sin)) # plot lines figure in current axis, mind the !
         # push!(p, lines!(a, 0:0.1:10, cos)) # add another plot
         # p[2][:color] = :red                # change the color property of second plot
-        # p[2].color = :red 
+        # p[2].color = :red
         # # resize the image window
         # set(hFig, 'Position', [200 100 1000 800])
 
@@ -271,7 +308,9 @@ for tt=2:timesteps #   %number of time steps
         # Calculate the surface
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-        h1 = plot_surface(20, ss, rho)
+        x,y,z = get_sphere_coordinates(100)
+        h1 = Makie.surface(ss*rho*x, ss*rho*y, ss*rho*z)
+
         # set (h1,'EdgeColor',[0.75,0.75,0.75],'FaceColor',[0.95,0.95,0.75],'MeshStyle','row');
 
 
@@ -281,8 +320,10 @@ for tt=2:timesteps #   %number of time steps
 
         plot3(r(:,1),r(:,2),r(:,3),'o','MarkerSize', 8,'MarkerEdgeColor','k','MarkerFaceColor','g');
         plot3(r(1,1),r(1,2),r(1,3),'o','MarkerSize', 8,'MarkerEdgeColor','k','MarkerFaceColor','r');  # TODO: NOTE: this is the one red cell
-        [xs2,ys2,zs2]=sphere(20);
-        h2=Makie.surface(ss*R_eq/2*xs2+r(1,1),ss*R_eq/2*ys2+r(1,2),ss*R_eq/2*zs2+r(1,3))
+        
+        xs2,ys2,zs2 = get_sphere_coordinates(20)
+        h2 = Makie.surface(ss*R_eq/2*xs2+r[1,1], ss*R_eq/2*ys2+r[1,2], ss*R_eq/2*zs2+r[1,3])
+
         # set (h2,'EdgeColor',[1,0,0],'FaceColor',[1,0,0],'MeshStyle','row');
 
         axis([-rho  rho  -rho  rho  -rho  rho]);

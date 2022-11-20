@@ -58,7 +58,7 @@ end
 This is a "Face-Vertex Mesh" -> the most widely used mesh representation
 'Face': usually consists of triangles
 """
-function combine_diffeq_sols_into_mesh(xs, ys, diffeq_sol)
+function combine_diffeq_sols_into_mesh(xs, ys, diffeq_sol::Array)
     faces = decompose(GLTriangleFace, Tesselation(Rect(0, 0, 1, 1), size(u_predict)))
 
     xs_vec = xs' .* ones(length(xs)) |> vec  # create meshgrid
