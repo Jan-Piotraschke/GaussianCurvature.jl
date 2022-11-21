@@ -348,9 +348,11 @@ for tt=2:timesteps #   %number of time steps
 
 
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-        # 2D EQUIRECTANGULAR PROJECTION of the 3D surface
+        # unfold the 3D surface to an open 2D grid and make it a closed 2D grid: EQUIRECTANGULAR PROJECTION or TESSELLATION
         # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
+        # NOTE: Tessellation can be possible because adjacent lines in 3D have a related angle in 2D
+        # TODO: simulate the particle behaviour on this 2D grid and map it back to the 3D surface afterwards
         ax1 = Axis(f[2, 1])                  # create axis at position [2,1] 
 
         subplot(2,2,[3 4])
@@ -393,7 +395,8 @@ for tt=2:timesteps #   %number of time steps
     # %----------------------------------------------------------------------
     # %Generate Distance Matrix DistMat:
     # %----------------------------------------------------------------------
-    
+
+    # ? TODO: calculate the distance on closed curved surfaces with the FAST MARCHING algorithm
     if rem(t,DT)==0
         for i=1:n
             for j=i+1:n
